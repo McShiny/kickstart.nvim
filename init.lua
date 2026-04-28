@@ -520,9 +520,14 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
+
+        -- Java LSP
         jdtls = {
           cmd = { 'jdtls' },
         },
+
+        -- C# LSP
+        csharp_ls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -532,12 +537,13 @@ require('lazy').setup({
       --    :Mason
       --
       -- You can press `g?` for help in this menu.
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'lua-language-server', -- Lua Language server
-        'stylua', -- Used to format Lua code
-        -- You can add other tools here that you want Mason to install
-      })
+      local ensure_installed = {
+        'lua-language-server',
+        'stylua',
+        'pyright',
+        'jdtls',
+        'csharp-language-server',
+      }
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -772,10 +778,42 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     config = function()
-      local filetypes = { 'bash', 'c', 'diff', 'html', 'java', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
-      require('nvim-treesitter').install(filetypes)
+      local parsers = {
+        'bash',
+        'c',
+        'c_sharp',
+        'diff',
+        'html',
+        'java',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+      }
+
+      require('nvim-treesitter').install(parsers)
+
+      vim.treesitter.language.register('c_sharp', 'cs')
+
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = filetypes,
+        pattern = {
+          'bash',
+          'c',
+          'cs',
+          'diff',
+          'html',
+          'java',
+          'lua',
+          'luadoc',
+          'markdown',
+          'markdown_inline',
+          'query',
+          'vim',
+          'vimdoc',
+        },
         callback = function() vim.treesitter.start() end,
       })
     end,
